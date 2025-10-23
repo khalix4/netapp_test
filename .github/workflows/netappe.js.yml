@@ -1,0 +1,26 @@
+name: React CI - Self Hosted
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: self-hosted   # 👈 this runs on your self-hosted machine
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Next.js App (ignore lint errors)
+        run: |
+          NEXT_DISABLE_ESLINT=1 npm run build

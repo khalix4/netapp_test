@@ -1,0 +1,26 @@
+name: Build Node.js App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'  
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build the app
+        run: |
+          NEXT_DISABLE_ESLINT=1 npm run build

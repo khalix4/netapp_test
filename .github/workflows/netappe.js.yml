@@ -1,12 +1,13 @@
-name: React CI - Self Hosted
+name: Deploy Next.js App to AWS EC2
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main  # or your deploy branch
 
 jobs:
-  build:
-    runs-on: self-hosted   # 👈 this runs on your self-hosted machine
+  build-and-deploy:
+    runs-on: self-hosted  # since you're using a self-hosted EC2 runner
 
     steps:
       - name: Checkout code
@@ -15,12 +16,24 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
+          node-version: '18' # or the version your app uses
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
-      - name: Build Next.js App (ignore lint errors)
+      - name: Build Next.js (disable ESLint)
         run: |
           NEXT_DISABLE_ESLINT=1 npm run build
+
+      - name: Export static files
+        run: |
+          npx next export
+
+      - name: Move exported files to web root
+        run: |
+          sudo rm -rf /var/www/html/*
+          sudo cp -r out/* /var/www/html/
+
+      - name: Restart Nginx (if you use Nginx)
+        run: |
+          sudo systemctl restart nginx
